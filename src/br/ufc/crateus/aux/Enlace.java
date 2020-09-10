@@ -11,5 +11,7 @@ public class Enlace {
 		this.cost = cost;
 	}
 	
+	
+	
 }
 
