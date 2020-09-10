@@ -24,7 +24,8 @@ public class Aux {
 			graph = extractDevices();
 			extractLinks();
 			extractRoutes();
-			scan.close();	
+			scan.close();
+			graph.algorithmDijkstra();
 			System.out.println(graph.toString());
 			
 		} catch (Exception e) {
