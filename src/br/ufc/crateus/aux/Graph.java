@@ -48,37 +48,15 @@ public class Graph {
 		return -1;
 	}
 	
-	@Override
-	public String toString() {
-		String devicesTxt = "[";
-		String adjacenciasTxt = "";
-		
-
-		for(String device : devices)
-			devicesTxt += device + ",";
-		devicesTxt+="]";
-		
-		for(boolean[] adjacenciaLine : adjacencias) {
-			adjacenciasTxt+="\n[";
-			for(boolean adjacencia : adjacenciaLine)
-				adjacenciasTxt += adjacencia + ",";
-			adjacenciasTxt+="],";
-		}
-		adjacenciasTxt+="";
-
-		return "\nDevices:"+devicesTxt+"\nAdjacencia:"+adjacenciasTxt;
-	}
 	
-	public void algorithmDijkstra() {
-		int iteration = 1;
-		
+	public void algorithmDijkstra() {		
 		showRehearseTable("Fase de Inicialização"); // A fase de "Inicialização"(custos iniciais) já está dentro de addLink
 		
-		int pos = 0;//Por ENQUANTO o valor 0, onde 0 será mudado para a posição do DEVICE ATUAL;
-		iterationAlgorithmDijkstra(pos, iteration);
+		int iteration = 0;
+		for(int i = 0 ; i < devices.length; i++) {			
+			iterationAlgorithmDijkstra(i, iteration);
+		}
 		
-		
-		//para outros vertices
 	}
 	
 	private void iterationAlgorithmDijkstra (int posDev, int iteration) {
@@ -103,11 +81,12 @@ public class Graph {
 					if(distancesEnlaces[posNeig][i].getCost() < distancesEnlaces[posDev][i].getCost()) 
 						distancesEnlaces[posDev][i].setCost(distancesEnlaces[posNeig][i].getCost());
 			}
-			
+			iteration++;
 			showRehearseTable("Fase de Iteração " + iteration);
 			
 			for(int newNeig : newNeighbors) {
-				addAnalyzeNeighbor(posDev, newNeig, ++iteration);
+				System.out.println("Iteração:"+iteration);
+				addAnalyzeNeighbor(posDev, newNeig, iteration);
 			}
 			
 		}
@@ -131,19 +110,40 @@ public class Graph {
 		System.out.println("\n"+stage);
 		String str = "";
 		
+		for(int i = 0 ; i < devices.length; i++) 
+			str += devices[i] + ":\t  | ";
+		System.out.print(str);
+		
+		str = "";
 		for(int i = 0 ; i < devices.length; i++) {
-			str += devices[i] + "\t|";
+			for(int j = 0 ; j < devices.length; j++) {
+				str += devices[i] + ",("+devices[distancesEnlaces[i][j].getPosOrigin()]+","+devices[distancesEnlaces[i][j].getPosDestiny()]+"),"+distancesEnlaces[i][j].getCost()+" | ";
+			}
+			str +="\n";
 		}
 		System.out.println(str);
 		
+	}
+
+	@Override
+	public String toString() {
+		String devicesTxt = "[";
+		String adjacenciasTxt = "";
 		
-		for(int i = 0 ; i < devices.length; i++) {
-			str += devices[i] + "\t|";
+
+		for(String device : devices)
+			devicesTxt += device + ",";
+		devicesTxt+="]";
+		
+		for(boolean[] adjacenciaLine : adjacencias) {
+			adjacenciasTxt+="\n[";
+			for(boolean adjacencia : adjacenciaLine)
+				adjacenciasTxt += adjacencia + ",";
+			adjacenciasTxt+="],";
 		}
-		System.out.println(str);
-		
-		
-		
+		adjacenciasTxt+="";
+
+		return "\nDevices:"+devicesTxt+"\nAdjacencia:"+adjacenciasTxt;
 	}
 	
 }

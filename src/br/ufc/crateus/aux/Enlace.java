@@ -11,6 +11,14 @@ public class Enlace {
 		this.cost = cost;
 	}
 	
+	public int getPosOrigin() {
+		return posOrigin;
+	}
+
+	public int getPosDestiny() {
+		return posDestiny;
+	}
+
 	public int getCost() {
 		return cost;
 	}

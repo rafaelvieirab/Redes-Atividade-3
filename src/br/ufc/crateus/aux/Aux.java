@@ -26,7 +26,6 @@ public class Aux {
 			extractRoutes();
 			scan.close();
 			graph.algorithmDijkstra();
-			System.out.println(graph.toString());
 			
 		} catch (Exception e) {
 			System.err.println("Erro ao abrir o arquivo");
