@@ -1,22 +1,20 @@
 package br.ufc.crateus.graph;
 
-import java.util.LinkedList;
-import java.util.List;
-
 public class Graph {
 	private String[] devices;
-	private boolean[][] adjacencias;
+	private int[][] adjacencias;
 	private Enlace[][] tabelaDeRepasse;
 	
 	public Graph(String[] devices) {
 		int length = devices.length;
 		this.devices = devices;
-		this.adjacencias = new boolean[length][length];
+		this.adjacencias = new int[length][length];
 		this.tabelaDeRepasse = new Enlace[length][length];
 
 		for(int i = 0; i < length; i++) {
-			this.adjacencias[i][i] = true;
-			this.tabelaDeRepasse[i][i] = new Enlace(i,i,0);
+			for(int j = 0; j < length; j++) 
+				adjacencias[i][j] = -1; 
+			this.adjacencias[i][i] = 0;
 		}
 	}
 	
@@ -27,11 +25,8 @@ public class Graph {
 			
 			if(p1 == -1 || p2==-1)
 				throw new Exception("O device não está cadastrado na Rede/Grafo");
-			adjacencias[p1][p2] = true;
-			adjacencias[p2][p1] = true;
-			tabelaDeRepasse[p1][p2] = new Enlace(p1,p2,cost);
-			tabelaDeRepasse[p2][p1] = new Enlace(p2,p1,cost);
-			
+			adjacencias[p1][p2] = cost;
+			adjacencias[p2][p1] = cost;
 			
 		} catch (Exception e) {
 			if(e.getMessage().length() == 0)
@@ -42,20 +37,28 @@ public class Graph {
 	}
 
 	private int indexDevice(String device) {
-		for(int i = 0; i<devices.length; i++)
+		for(int i = 0; i < devices.length; i++)
 			if(device.equals(devices[i]))
 				return i;
 		return -1;
 	}
 	
-	public void algorithmDijkstra() {		
-		showTabelaDeRepasse("Fase de Inicialização"); 
+	public void algorithmDijkstra() {
+		initializesAlgorithmDijkstra();
 		
 		int iteration = 0;
 		for(int i = 0 ; i < devices.length; i++) {	
 			iteration = iterationAlgorithmDijkstra(i, iteration);
 		}
 		
+	}
+	
+	private void initializesAlgorithmDijkstra() {
+		for(int i = 0; i < devices.length; i++) 
+			for(int j = 0; j < devices.length; j++) 
+				if(adjacencias[i][j] != -1) 
+					tabelaDeRepasse[i][j] = new Enlace(i,j,adjacencias[i][j]);
+		showTabelaDeRepasse("Fase de Inicialização");
 	}
 	
 	private int iterationAlgorithmDijkstra (int posDevCurr, int iteration) {
@@ -68,6 +71,9 @@ public class Graph {
 				break;
 			visitedVertex[posNeighborLowest] = true;
 			iteration = addAnalyzeNeighbor(posDevCurr, posNeighborLowest, visitedVertex, iteration);
+
+			iteration++;
+			showTabelaDeRepasse("Fase de Iteração " + iteration);
 	    }
 		return iteration;
 	}
@@ -89,27 +95,17 @@ public class Graph {
 	}
 	
 	private int addAnalyzeNeighbor(int posDev, int posNeig, boolean[] visitedVertex, int iteration) {
-		//List<Integer> newNeighbors = new LinkedList<Integer>();
 		
-		for(int i = 0 ; i < tabelaDeRepasse[posNeig].length; i++) {
+		for(int v = 0 ; v < tabelaDeRepasse[posNeig].length; v++) {
 			
-			if(visitedVertex[i] || posNeig==i || tabelaDeRepasse[posNeig][i] == null) 
+			if(visitedVertex[v] || posNeig==v || tabelaDeRepasse[posNeig][v] == null) 
 				continue;
 			
-			int costSum = tabelaDeRepasse[posDev][posNeig].getCost()+tabelaDeRepasse[posNeig][i].getCost();
-			if(tabelaDeRepasse[posDev][i] == null || costSum < tabelaDeRepasse[posDev][i].getCost()) {
-				tabelaDeRepasse[posDev][i] = new Enlace(posDev, posNeig, costSum);
-				//newNeighbors.add(i);
+			int costSum = tabelaDeRepasse[posDev][posNeig].getCost()+tabelaDeRepasse[posNeig][v].getCost();
+			if(tabelaDeRepasse[posDev][v] == null || costSum < tabelaDeRepasse[posDev][v].getCost()) {
+				tabelaDeRepasse[posDev][v] = new Enlace(posDev, posNeig, costSum);
 			}
 		}
-		iteration++;
-		showTabelaDeRepasse("Fase de Iteração " + iteration);
-		//errado
-//		for(int newNeig : newNeighbors) {
-//			//addAnalyzeNeighbor(posDev, posNeig, iteration);
-//			//iteration = addAnalyzeNeighbor2(posDev, posNeig, newNeig, iteration);
-//			addAnalyzeNeighbor(posDev, newNeig, iteration);
-//		}
 		return iteration;
 	}
 	
@@ -136,6 +132,30 @@ public class Graph {
 		System.out.println(str);
 	}
 
+	public int getLengthDevices() {
+		return devices.length;
+	}
+	
+	public String getDevice(int pos) {
+		if(pos < devices.length)
+			return devices[pos];
+		return "";
+	}
+
+	public String[] getDevices() {
+		return devices;
+	}
+
+	public int getValueAdjacencia(int i, int j) {
+		if(i < devices.length && j < devices.length)
+			return adjacencias[i][j];
+		return -1;
+	}
+	
+	public int[][] getAdjacencias() {
+		return adjacencias;
+	}
+	
 	@Override
 	public String toString() {
 		String devicesTxt = "[";
@@ -146,9 +166,9 @@ public class Graph {
 			devicesTxt += device + ",";
 		devicesTxt+="]";
 		
-		for(boolean[] adjacenciaLine : adjacencias) {
+		for(int[] adjacenciaLine : adjacencias) {
 			adjacenciasTxt+="\n[";
-			for(boolean adjacencia : adjacenciaLine)
+			for(int adjacencia : adjacenciaLine)
 				adjacenciasTxt += adjacencia + ",";
 			adjacenciasTxt+="],";
 		}

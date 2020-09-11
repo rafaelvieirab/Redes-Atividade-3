@@ -8,11 +8,11 @@ public class Graph2 {
 		this.devices = devices;
 		this.adjacencias = new int[devices.length][devices.length];
 		
-		for(int i = 0; i < devices.length; i++) 
+		for(int i = 0; i < devices.length; i++) {
 			for(int j = 0; j < devices.length; j++) 
 				this.adjacencias[i][j] = -1;
-		for(int i = 0; i < devices.length; i++) 
 			this.adjacencias[i][i] = 0;
+		}
 	}
 	
 	public int getLengthDevices() {

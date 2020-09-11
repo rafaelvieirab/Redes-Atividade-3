@@ -1,20 +1,82 @@
 package br.ufc.crateus.graph;
 
 public class DijkstraAlgorithm {
-	public void dijkstra(Graph2 g) {
-		Enlace[][] tabelaDeRepasse = new Enlace[g.getLengthDevices()][g.getLengthDevices()];
-		
-		int numberIter = 0;
-//		numberIter = iterationDijkstra(g, 0,numberIter);
-		for(int i = 0; i < g.getDevices().length; i++) {
-			tabelaDeRepasse[i] = iterationDijkstra(g, i,numberIter);
+	private Enlace[][] tabelaDeRepasse;
+	Graph graph;
+	int numberDevices;
+	
+	public DijkstraAlgorithm(Graph g) {
+		this.graph = g;
+		this.numberDevices = g.getLengthDevices();
+		this.tabelaDeRepasse= new Enlace[numberDevices][numberDevices];
+		dijkstra();
+	}
+	
+	public void dijkstra() {
+		initializes();
+		int iteration = 0;
+		for(int i = 0; i < numberDevices; i++) {
+			iteration = iteration(i, iteration);
 		}
-		
-		showTabelaDeRepasse("Inicialização", tabelaDeRepasse, g.getDevices());
+		this.graph = null;
 	}
 
-	private void showTabelaDeRepasse(String stage, Enlace[][] table, String[] devices) {
+	private void initializes() {
+		for(int i = 0; i < numberDevices; i++) 
+			for(int j = 0; j < numberDevices; j++) 
+				if(graph.getValueAdjacencia(i, j) != -1) 
+					tabelaDeRepasse[i][j] = new Enlace(i, j, graph.getValueAdjacencia(i, j));
+		showTabelaDeRepasse("Fase de Inicialização");
+	}
+
+	private int iteration (int posCur, int iteration) {
+	    boolean[] visitedVertex = new boolean[numberDevices];
+		
+	    for(int i = 0; i < numberDevices; i++) {
+			int posNeighborLowest =  getIndexLowerCostNeighbor(posCur, visitedVertex);
+			if(posNeighborLowest == -1)
+				break;
+			visitedVertex[posNeighborLowest] = true;
+			iteration = addAnalyzeNeighbor(posCur, posNeighborLowest, visitedVertex, iteration);
+	    }
+	    iteration++;
+		showTabelaDeRepasse("Fase de Iteração " + iteration);
+		return iteration;
+	}
+
+	private int getIndexLowerCostNeighbor(int posCur, boolean[] visitedVertex) {
+		int lowerCost = -1;
+		int posLowerCost = -1;
+		
+		for(int i = 0; i < numberDevices; i++) {
+			if(visitedVertex[i] || tabelaDeRepasse[posCur][i] == null || posCur == i)
+				continue;
+			int tmpCost = tabelaDeRepasse[posCur][i].getCost();
+			if(tmpCost < lowerCost || lowerCost==-1) {
+				lowerCost = tmpCost;
+				posLowerCost = i;
+			}
+		}
+		return posLowerCost;
+	}
+	
+	private int addAnalyzeNeighbor(int posCur, int posNeig, boolean[] visitedVertex, int iteration) {
+		
+		for(int v = 0 ; v < tabelaDeRepasse[posNeig].length; v++) {
+			if(visitedVertex[v] || posNeig==v || tabelaDeRepasse[posNeig][v] == null) 
+				continue;
+			
+			int costSum = tabelaDeRepasse[posCur][posNeig].getCost()+tabelaDeRepasse[posNeig][v].getCost();
+			if(tabelaDeRepasse[posCur][v] == null || costSum < tabelaDeRepasse[posCur][v].getCost()) 
+				tabelaDeRepasse[posCur][v] = new Enlace(posCur, posNeig, costSum);
+		}
+		return iteration;
+	}
+	
+	private void showTabelaDeRepasse(String stage) {
+		String[] devices = graph.getDevices();
 		int length = devices.length;
+		
 		String str = " ";
 		System.out.println("\nFase de "+stage);
 		
@@ -22,13 +84,14 @@ public class DijkstraAlgorithm {
 			str += devices[i] + ":\t   | ";
 		System.out.println(str);
 
-		
 		str = "";
 		for(int i = 0 ; i < length; i++) {
 			for(int j = 0 ; j < length; j++) {
 				str += devices[i]+",(";
-				if(table[i][j] != null) 
-					str += devices[table[i][j].getPosOrigin()]+","+devices[table[i][j].getPosDestiny()]+"),"+ table[i][j].getCost()+"  | ";
+				if(tabelaDeRepasse[i][j] != null) 
+					str += devices[tabelaDeRepasse[i][j].getPosOrigin()] + ","
+						   + devices[tabelaDeRepasse[i][j].getPosDestiny()] + ")," 
+						   + tabelaDeRepasse[i][j].getCost() + "  | ";
 				else
 					str += "-,-),-1 | ";
 			}
@@ -36,63 +99,5 @@ public class DijkstraAlgorithm {
 		}
 		System.out.println(str);
 	}
-	
-	private Enlace[] iterationDijkstra(Graph2 g, int posCurr, int numberIter) {
-		int length = g.getLengthDevices();
-		
-		boolean[] visited= new boolean[length];
-		int[] distances = new int[length];
-		int[] previous = new int[length];
-		Enlace[] enlaces = new Enlace[length];
-
-		for (int i = 0; i < length; i++) {
-			visited[i] = false;
-			distances[i] = -1;//Integer.MAX_VALUE;
-			previous[i] = -1;
-		}
-		distances[posCurr] = 0;
-		previous[posCurr] = 0;
-		
-				;
-		for (int i = 0; i < length; i++) {
-			int nearestNeighbor = getIndexLowerCostNeighbor(distances, visited);
-			visited[nearestNeighbor] = true;
-
-			for (int v = 0; v < length; v++) {
-				if (!visited[v] && g.getValueAdjacencia(nearestNeighbor, v) > 0) {
-					int tmpDistance =  distances[nearestNeighbor] + g.getValueAdjacencia(nearestNeighbor, v);
-					if(distances[nearestNeighbor] == -1) {
-						System.out.println("Entrou");
-						//continue;
-					}
-					if(tmpDistance <  distances[v] ||  distances[v] == -1) {
-						//System.out.println("Distãncia Temp:"+tmpDistance);
-						distances[v] = tmpDistance;
-						previous[v] = nearestNeighbor;
-					}
-				}
-			}
-
-		}
-		for (int i = 0; i < length; i++) {
-			enlaces[i] = new Enlace(posCurr, previous[i],  distances[i]);
-			System.out.println(String.format("Distance from %s to %s is %s", g.getDevice(posCurr), g.getDevice(i),  distances[i]));
-		}
-		return enlaces;
-	}
-
-	private int getIndexLowerCostNeighbor(int[] distances, boolean[] visited) {
-		int lowestDistance =  -1; 
-		int posLowestDistance = -1; 
-		
-		for (int i = 0; i < distances.length; i++) { 
-			if (!visited[i] && (distances[i] < lowestDistance || lowestDistance == -1) && distances[i]!=-1) {
-				lowestDistance = distances[i];
-				posLowestDistance = i;
-			}
-		}
-		return posLowestDistance;
-	}
-
 
 }
