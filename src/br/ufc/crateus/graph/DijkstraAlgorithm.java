@@ -1,75 +1,98 @@
 package br.ufc.crateus.graph;
 
 public class DijkstraAlgorithm {
-	public static void dijkstra(Graph2 g) {
+	public void dijkstra(Graph2 g) {
+		Enlace[][] tabelaDeRepasse = new Enlace[g.getLengthDevices()][g.getLengthDevices()];
+		
 		int numberIter = 0;
-		numberIter = iterationDijkstra(g, 0,numberIter);
+//		numberIter = iterationDijkstra(g, 0,numberIter);
 		for(int i = 0; i < g.getDevices().length; i++) {
-			numberIter = iterationDijkstra(g, i,numberIter);
+			tabelaDeRepasse[i] = iterationDijkstra(g, i,numberIter);
 		}
+		
+		showTabelaDeRepasse("Inicialização", tabelaDeRepasse, g.getDevices());
 	}
 
-	private static int iterationDijkstra(Graph2 g, int posCurr, int numberIter) {
+	private void showTabelaDeRepasse(String stage, Enlace[][] table, String[] devices) {
+		int length = devices.length;
+		String str = " ";
+		System.out.println("\nFase de "+stage);
+		
+		for(int i = 0 ; i < length; i++) 
+			str += devices[i] + ":\t   | ";
+		System.out.println(str);
+
+		
+		str = "";
+		for(int i = 0 ; i < length; i++) {
+			for(int j = 0 ; j < length; j++) {
+				str += devices[i]+",(";
+				if(table[i][j] != null) 
+					str += devices[table[i][j].getPosOrigin()]+","+devices[table[i][j].getPosDestiny()]+"),"+ table[i][j].getCost()+"  | ";
+				else
+					str += "-,-),-1 | ";
+			}
+			str +="\n";
+		}
+		System.out.println(str);
+	}
+	
+	private Enlace[] iterationDijkstra(Graph2 g, int posCurr, int numberIter) {
 		int length = g.getLengthDevices();
+		
 		boolean[] visited= new boolean[length];
-		int[] distance = new int[length];
+		int[] distances = new int[length];
 		int[] previous = new int[length];
+		Enlace[] enlaces = new Enlace[length];
 
 		for (int i = 0; i < length; i++) {
 			visited[i] = false;
-			distance[i] = -1;//Integer.MAX_VALUE;
+			distances[i] = -1;//Integer.MAX_VALUE;
 			previous[i] = -1;
 		}
-		distance[posCurr] = 0;
-
+		distances[posCurr] = 0;
+		previous[posCurr] = 0;
+		
+				;
 		for (int i = 0; i < length; i++) {
-
-			int nearestNeighbor = findLowestDistance(distance, visited);
+			int nearestNeighbor = getIndexLowerCostNeighbor(distances, visited);
 			visited[nearestNeighbor] = true;
 
 			for (int v = 0; v < length; v++) {
 				if (!visited[v] && g.getValueAdjacencia(nearestNeighbor, v) > 0) {
-					int tmpDistance = distance[nearestNeighbor] + g.getValueAdjacencia(nearestNeighbor, v);
-
-					if(distance[nearestNeighbor] == -1) {
+					int tmpDistance =  distances[nearestNeighbor] + g.getValueAdjacencia(nearestNeighbor, v);
+					if(distances[nearestNeighbor] == -1) {
 						System.out.println("Entrou");
 						//continue;
 					}
-					if(tmpDistance < distance[v] || distance[v] == -1) {
-						System.out.println("Distãncia Temp:"+tmpDistance);
-						distance[v] = tmpDistance;
+					if(tmpDistance <  distances[v] ||  distances[v] == -1) {
+						//System.out.println("Distãncia Temp:"+tmpDistance);
+						distances[v] = tmpDistance;
 						previous[v] = nearestNeighbor;
 					}
 				}
 			}
 
 		}
-		for (int i = 0; i < distance.length; i++) 
-			System.out.println(String.format("Distance from %s to %s is %s", g.getDevice(posCurr), g.getDevice(i), distance[i]));
-		return numberIter;
+		for (int i = 0; i < length; i++) {
+			enlaces[i] = new Enlace(posCurr, previous[i],  distances[i]);
+			System.out.println(String.format("Distance from %s to %s is %s", g.getDevice(posCurr), g.getDevice(i),  distances[i]));
+		}
+		return enlaces;
 	}
 
-	private static int findLowestDistance(int[] distance, boolean[] visited) {
-		int lowestDistance = distance[0]; 
-		int posLowestDistance = 0; 
+	private int getIndexLowerCostNeighbor(int[] distances, boolean[] visited) {
+		int lowestDistance =  -1; 
+		int posLowestDistance = -1; 
 		
-		System.out.println("\nComeça aqui");
-		for (int i = 0; i < distance.length; i++) { 
-			System.out.print(distance[i]+",");
-			if (!visited[i] && distance[i] < lowestDistance && distance[i]!=-1) {
-				System.out.println("Entrou: "+distance[i]);
-				lowestDistance = distance[i];
+		for (int i = 0; i < distances.length; i++) { 
+			if (!visited[i] && (distances[i] < lowestDistance || lowestDistance == -1) && distances[i]!=-1) {
+				lowestDistance = distances[i];
 				posLowestDistance = i;
 			}
 		}
-		System.out.println("");
-		System.out.println("Lowest:"+distance[posLowestDistance]);
 		return posLowestDistance;
 	}
 
-	public static void main(String[] args) {
-		Graph2 graph = BuildGraph2.readFile("test3.txt");
-		DijkstraAlgorithm.dijkstra(graph);
-	}
 
 }

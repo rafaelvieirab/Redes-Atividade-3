@@ -59,96 +59,60 @@ public class Graph {
 	}
 	
 	private int iterationAlgorithmDijkstra (int posDevCurr, int iteration) {
-		int posNeighborLowest =  getIndexLowerCostNeighbor(posDevCurr);
-		iteration = addAnalyzeNeighbor(posDevCurr, posNeighborLowest, iteration);
+		
+	    boolean[] visitedVertex = new boolean[devices.length];
+		
+	    for(int i = 0; i < devices.length; i++) {
+			int posNeighborLowest =  getIndexLowerCostNeighbor(posDevCurr, visitedVertex);
+			if(posNeighborLowest == -1)
+				break;
+			visitedVertex[posNeighborLowest] = true;
+			iteration = addAnalyzeNeighbor(posDevCurr, posNeighborLowest, visitedVertex, iteration);
+	    }
 		return iteration;
 	}
 
-	private int getIndexLowerCostNeighbor(int posDevCurr) {
+	private int getIndexLowerCostNeighbor(int posDevCurr, boolean[] visitedVertex) {
 		int lowerCost = -1;
 		int posLowerCost = -1;
 		
 		for(int i = 0; i < tabelaDeRepasse[posDevCurr].length; i++) {
-			if(tabelaDeRepasse[posDevCurr][i] == null || posDevCurr == i)
+			if(visitedVertex[i] || tabelaDeRepasse[posDevCurr][i] == null || posDevCurr == i)
 				continue;
-			int costCurrent = tabelaDeRepasse[posDevCurr][i].getCost();
-			if(costCurrent < lowerCost || lowerCost==-1) {
-				lowerCost = costCurrent;
+			int tmpCost = tabelaDeRepasse[posDevCurr][i].getCost();
+			if(tmpCost < lowerCost || lowerCost==-1) {
+				lowerCost = tmpCost;
 				posLowerCost = i;
 			}
 		}
 		return posLowerCost;
 	}
 	
-	private int addAnalyzeNeighbor(int posDev, int posNeig, int iteration) {
-		List<Integer> newNeighbors = new LinkedList<Integer>();
+	private int addAnalyzeNeighbor(int posDev, int posNeig, boolean[] visitedVertex, int iteration) {
+		//List<Integer> newNeighbors = new LinkedList<Integer>();
 		
 		for(int i = 0 ; i < tabelaDeRepasse[posNeig].length; i++) {
 			
-			if(tabelaDeRepasse[posNeig][i] == null) 
+			if(visitedVertex[i] || posNeig==i || tabelaDeRepasse[posNeig][i] == null) 
 				continue;
 			
-			if(tabelaDeRepasse[posDev][i] == null) {
-				int costSum = tabelaDeRepasse[posDev][posNeig].getCost()+tabelaDeRepasse[posNeig][i].getCost();
+			int costSum = tabelaDeRepasse[posDev][posNeig].getCost()+tabelaDeRepasse[posNeig][i].getCost();
+			if(tabelaDeRepasse[posDev][i] == null || costSum < tabelaDeRepasse[posDev][i].getCost()) {
 				tabelaDeRepasse[posDev][i] = new Enlace(posDev, posNeig, costSum);
-				tabelaDeRepasse[i][posDev] = new Enlace(posNeig, posDev, costSum);
-				newNeighbors.add(i);
-				//Para cada nó descoberto, eu salvo com o valor do vizinho 
-			}
-			else {
-				if(tabelaDeRepasse[posNeig][i].getCost()+tabelaDeRepasse[posDev][posNeig].getCost() < tabelaDeRepasse[posDev][i].getCost()) { 
-					int costSum = tabelaDeRepasse[posDev][posNeig].getCost()+tabelaDeRepasse[posNeig][i].getCost();
-					tabelaDeRepasse[posDev][i] = new Enlace(posDev,posNeig,costSum);
-					tabelaDeRepasse[i][posDev] = new Enlace(posNeig, posDev, costSum);
-				}
+				//newNeighbors.add(i);
 			}
 		}
 		iteration++;
 		showTabelaDeRepasse("Fase de Iteração " + iteration);
 		//errado
-		for(int newNeig : newNeighbors) {
-			//addAnalyzeNeighbor(posDev, posNeig, iteration);
-			iteration = addAnalyzeNeighbor2(posDev, posNeig, newNeig, iteration);
-			//addAnalyzeNeighbor(posDev, newNeig, iteration);
-		}
+//		for(int newNeig : newNeighbors) {
+//			//addAnalyzeNeighbor(posDev, posNeig, iteration);
+//			//iteration = addAnalyzeNeighbor2(posDev, posNeig, newNeig, iteration);
+//			addAnalyzeNeighbor(posDev, newNeig, iteration);
+//		}
 		return iteration;
 	}
 	
-	private int addAnalyzeNeighbor2(int posDev, int posNeig, int posNeig2, int iteration) {
-		System.out.println("Current: "+devices[posDev]);
-		System.out.println("Vizinho Original: "+devices[posNeig]);
-		System.out.println("Novo Vizinho: "+devices[posNeig2]);
-		
-		List<Integer> newNeighbors = new LinkedList<Integer>();
-		
-		for(int i = 0 ; i < tabelaDeRepasse[posNeig2].length; i++) {
-			
-			if(tabelaDeRepasse[posNeig2][i] == null) 
-				continue;
-			
-			if(tabelaDeRepasse[posDev][i] == null) {
-				int costSum = tabelaDeRepasse[posDev][posNeig2].getCost()+tabelaDeRepasse[posNeig2][i].getCost();
-				tabelaDeRepasse[posDev][i] = new Enlace(posDev, posNeig, costSum);
-				tabelaDeRepasse[i][posDev] = new Enlace(posNeig, posDev, costSum);
-				newNeighbors.add(i);
-			}
-			else {
-				if(tabelaDeRepasse[posNeig2][i].getCost()+tabelaDeRepasse[posDev][posNeig2].getCost() < tabelaDeRepasse[posDev][i].getCost()) { 
-					int costSum = tabelaDeRepasse[posDev][posNeig2].getCost()+tabelaDeRepasse[posNeig2][i].getCost();
-					tabelaDeRepasse[posDev][i] = new Enlace(posDev,posNeig,costSum);
-					tabelaDeRepasse[i][posDev] = new Enlace(posNeig, posDev, costSum);
-				}
-			}
-		}
-		iteration++;
-		showTabelaDeRepasse("Fase de Iteração " + iteration);
-		for(int newNeig : newNeighbors) {
-			iteration = addAnalyzeNeighbor2(posDev, posNeig, newNeig, iteration);
-			//addAnalyzeNeighbor(posDev, newNeig, iteration);
-		}
-		return iteration;
-	}
-		
 	private void showTabelaDeRepasse (String stage) {
 		System.out.println("\n"+stage);
 		String str = " ";

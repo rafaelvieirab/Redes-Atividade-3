@@ -41,6 +41,7 @@ public class Graph2 {
 	
 	public void addLink(String deviceStr1,String deviceStr2, int cost) {
 		try {
+			
 			int p1 = indexDevice(deviceStr1);
 			int p2 = indexDevice(deviceStr2);
 			

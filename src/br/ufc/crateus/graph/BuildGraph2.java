@@ -9,7 +9,7 @@ public class BuildGraph2 {
 	private static Scanner scan;
 	
 	public static Graph2 readFile() {
-		String fileName = "src/test.txt";
+		String fileName = "test.txt";
 		return readFile(fileName);
 	}
 	
@@ -17,33 +17,33 @@ public class BuildGraph2 {
 		Graph2 graph = null;
 		try {
 			if(fileName == "") 
-				fileName = "src/test.txt";
+				fileName = "test2.txt";
 			
 			scan = new Scanner(new File(fileName));
-			graph = extractDevices();
-			extractLinks(graph);
+			graph = getDevices();
+			getLinks(graph);
 			scan.close();
 		} catch (Exception e) {
-			System.err.println("Erro ao ler o arquivo"+fileName);
+			System.err.println("Erro ao ler o arquivo: '"+fileName+"'");
 		}
 		return graph;
 	}
 	
-	private static Graph2 extractDevices() {
-		String[] devices = splitLineInValue();
+	private static Graph2 getDevices() {
+		String[] devices = splitLine();
 		return new Graph2(devices);
 	}
 	
-	private static void extractLinks(Graph2 graph) {
+	private static void getLinks(Graph2 graph) {
 		try {
-			String[] values = splitLineInValue();
+			String[] values = splitLine();
 			
 			for(int i=0; i<values.length; i+=3) {
 				String device1 = values[i].substring(1);
 				String device2 = values[i+1]; 
 				String costStr = values[i+2].substring(0, values[i+2].length()-1);  
 				int cost = Integer.parseInt(costStr);
-
+				
 				graph.addLink(device1, device2, cost);
 			}
 
@@ -52,13 +52,13 @@ public class BuildGraph2 {
 		}
 	}
 	
-	public static List<String[]> extractRoutes() {
+	public static List<String[]> getRoutes() {
 		List<String[]> routes = null;
 		if(scan == null)
 			return null;
 		
 		try {
-			String[] values = splitLineInValue();
+			String[] values = splitLine();
 			routes =  new LinkedList<String[]>();
 			
 			for(int i=0; i < values.length; i+=2) {
@@ -76,7 +76,7 @@ public class BuildGraph2 {
 		return routes;
 	}
 		
-	private static String[] splitLineInValue() {
+	private static String[] splitLine() {
 		String line = scan.nextLine();
 		String[] values = null;
 		
@@ -84,7 +84,7 @@ public class BuildGraph2 {
 			String data = line.split(":")[1];
 			values = data.split(",");
 		} catch (Exception e) {
-			System.err.println("Erro no formato do arquivo");
+			System.err.println("Formato de arquivo incoerente com o padrão!");
 		}
 		return values;
 	}
