@@ -1,0 +1,3 @@
+DEVICES:a,b,c,d,e
+LINKS:(a,b,3),(a,c,1),(b,c,7),(b,d,5),(b,e,1),(c,d,2),(d,e,7)
+ROUTES:(a,e),(a,d)

@@ -25,10 +25,11 @@ public class Aux {
 			extractLinks();
 			extractRoutes();
 			scan.close();
+			//System.out.println(graph.toString());
 			graph.algorithmDijkstra();
 			
 		} catch (Exception e) {
-			System.err.println("Erro ao abrir o arquivo");
+			System.err.println("Erro ao ler o arquivo"+fileName);
 		}
 	}
 	
@@ -47,9 +48,10 @@ public class Aux {
 				String device2 = values[i+1]; 
 				String costStr = values[i+2].substring(0, values[i+2].length()-1);  
 				int cost = Integer.parseInt(costStr);
-				
+
 				graph.addLink(device1, device2, cost);
 			}
+
 		} catch (Exception e) {
 			System.err.println("Formato de arquivo incoerente com o padrão!");
 		}
@@ -58,7 +60,7 @@ public class Aux {
 	private void extractRoutes() {
 		try {
 			String[] values = splitLineInValue();
-			
+
 			for(int i=0; i < values.length; i+=2) {
 				String origin = values[i].substring(1); 
 				String destiny = values[i+1].substring(0, values[i+1].length()-1);  

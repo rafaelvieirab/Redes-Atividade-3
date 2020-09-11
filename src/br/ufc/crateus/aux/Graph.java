@@ -6,17 +6,17 @@ import java.util.List;
 public class Graph {
 	private String[] devices;
 	private boolean[][] adjacencias;
-	private Enlace[][] distancesEnlaces;
+	private Enlace[][] tabelaDeRepasse;
 	
 	public Graph(String[] devices) {
 		int length = devices.length;
 		this.devices = devices;
 		this.adjacencias = new boolean[length][length];
-		this.distancesEnlaces = new Enlace[length][length];
+		this.tabelaDeRepasse = new Enlace[length][length];
 
 		for(int i = 0; i < length; i++) {
 			this.adjacencias[i][i] = true;
-			this.distancesEnlaces[i][i] = new Enlace(i,i,0);
+			this.tabelaDeRepasse[i][i] = new Enlace(i,i,0);
 		}
 	}
 	
@@ -29,8 +29,8 @@ public class Graph {
 				throw new Exception("O device não está cadastrado na Rede/Grafo");
 			adjacencias[p1][p2] = true;
 			adjacencias[p2][p1] = true;
-			distancesEnlaces[p1][p2] = new Enlace(p1,p2,cost);
-			distancesEnlaces[p2][p1] = new Enlace(p2,p1,cost);
+			tabelaDeRepasse[p1][p2] = new Enlace(p1,p2,cost);
+			tabelaDeRepasse[p2][p1] = new Enlace(p2,p1,cost);
 			
 			
 		} catch (Exception e) {
@@ -48,88 +48,96 @@ public class Graph {
 		return -1;
 	}
 	
-	
 	public void algorithmDijkstra() {		
-		showRehearseTable("Fase de Inicialização"); // A fase de "Inicialização"(custos iniciais) já está dentro de addLink
+		showTabelaDeRepasse("Fase de Inicialização"); 
 		
 		int iteration = 0;
-		for(int i = 0 ; i < devices.length; i++) {			
+		for(int i = 0 ; i < devices.length; i++) {	
 			iterationAlgorithmDijkstra(i, iteration);
 		}
 		
 	}
 	
-	private void iterationAlgorithmDijkstra (int posDev, int iteration) {
-		int pos = posDev;
-		int index =  getIndexLowerCostNeighbor(pos);
-		
-		//Analise dos caminhos do vizinho de menor custo
-		addAnalyzeNeighbor(posDev, index, iteration);
+	private void iterationAlgorithmDijkstra (int posDevCurr, int iteration) {
+		int posNeighborLowest =  getIndexLowerCostNeighbor(posDevCurr);
+		addAnalyzeNeighbor(posDevCurr, posNeighborLowest, iteration);
 	}
-	
-	private void addAnalyzeNeighbor(int posDev, int posNeig, int iteration) {
-		List<Integer> newNeighbors = new LinkedList<Integer>();
-		
-		for(int i = 0 ; i < distancesEnlaces[posNeig].length; i++) {
-			if(distancesEnlaces[posNeig][i] != null) { 
-				if(distancesEnlaces[posDev][i] == null) {
-					int cost = distancesEnlaces[posNeig][i].getCost();
-					distancesEnlaces[posDev][i] = new Enlace(posNeig, i, cost);
-					newNeighbors.add(i);
-				}
-				else 
-					if(distancesEnlaces[posNeig][i].getCost() < distancesEnlaces[posDev][i].getCost()) 
-						distancesEnlaces[posDev][i].setCost(distancesEnlaces[posNeig][i].getCost());
-			}
-			iteration++;
-			showRehearseTable("Fase de Iteração " + iteration);
-			
-			for(int newNeig : newNeighbors) {
-				System.out.println("Iteração:"+iteration);
-				addAnalyzeNeighbor(posDev, newNeig, iteration);
-			}
-			
-		}
-	}
-	
-	private int getIndexLowerCostNeighbor(int posDeviceCurrent) {
+
+	private int getIndexLowerCostNeighbor(int posDevCurr) {
 		int lowerCost = -1;
-		int posLowerCost = 0;
+		int posLowerCost = -1;
 		
-		for(int i = 0; i < distancesEnlaces[0].length; i++) {
-			int costCurrent = distancesEnlaces[0][i].getCost();
-			if( (i!=posDeviceCurrent && costCurrent < lowerCost && costCurrent !=-1) || (lowerCost==-1)) {
+		for(int i = 0; i < tabelaDeRepasse[posDevCurr].length; i++) {
+			if(tabelaDeRepasse[posDevCurr][i] == null || posDevCurr == i)
+				continue;
+			int costCurrent = tabelaDeRepasse[posDevCurr][i].getCost();
+			if(costCurrent < lowerCost || lowerCost==-1) {
 				lowerCost = costCurrent;
 				posLowerCost = i;
 			}
 		}
 		return posLowerCost;
 	}
+	
+	private void addAnalyzeNeighbor(int posDev, int posNeig, int iteration) {
+		List<Integer> newNeighbors = new LinkedList<Integer>();
 		
-	private void showRehearseTable (String stage) {
+		for(int i = 0 ; i < tabelaDeRepasse[posNeig].length; i++) {
+			
+			if(tabelaDeRepasse[posNeig][i] == null) 
+				continue;
+			
+			if(tabelaDeRepasse[posDev][i] == null) {
+				int costSum = tabelaDeRepasse[posDev][posNeig].getCost()+tabelaDeRepasse[posNeig][i].getCost();
+				tabelaDeRepasse[posDev][i] = new Enlace(posDev, posNeig, costSum);
+				tabelaDeRepasse[i][posDev] = new Enlace(posNeig, posDev, costSum);
+				newNeighbors.add(i);
+			}
+			else {
+				if(tabelaDeRepasse[posNeig][i].getCost()+tabelaDeRepasse[posDev][posNeig].getCost() < tabelaDeRepasse[posDev][i].getCost()) { 
+					int costSum = tabelaDeRepasse[posDev][posNeig].getCost()+tabelaDeRepasse[posNeig][i].getCost();
+					tabelaDeRepasse[posDev][i] = new Enlace(posDev,posNeig,costSum);
+					tabelaDeRepasse[i][posDev] = new Enlace(posNeig, posDev, costSum);
+				}
+			}
+		}
+		iteration++;
+		showTabelaDeRepasse("Fase de Iteração " + iteration);
+		//errado
+		for(int newNeig : newNeighbors) {
+			//addAnalyzeNeighbor(posDev, posNeig, iteration);
+			addAnalyzeNeighbor(posDev, newNeig, iteration);
+		}
+	}
+		
+	private void showTabelaDeRepasse (String stage) {
 		System.out.println("\n"+stage);
-		String str = "";
+		String str = " ";
 		
 		for(int i = 0 ; i < devices.length; i++) 
-			str += devices[i] + ":\t  | ";
-		System.out.print(str);
+			str += devices[i] + ":\t   | ";
+		System.out.println(str);
+
 		
 		str = "";
 		for(int i = 0 ; i < devices.length; i++) {
 			for(int j = 0 ; j < devices.length; j++) {
-				str += devices[i] + ",("+devices[distancesEnlaces[i][j].getPosOrigin()]+","+devices[distancesEnlaces[i][j].getPosDestiny()]+"),"+distancesEnlaces[i][j].getCost()+" | ";
+				str += devices[i]+",(";
+				if(tabelaDeRepasse[i][j] != null) 
+					str += devices[tabelaDeRepasse[i][j].getPosOrigin()]+","+devices[tabelaDeRepasse[i][j].getPosDestiny()]+"),"+ tabelaDeRepasse[i][j].getCost()+"  | ";
+				else
+					str += "-,-),-1 | ";
 			}
 			str +="\n";
 		}
 		System.out.println(str);
-		
 	}
 
 	@Override
 	public String toString() {
 		String devicesTxt = "[";
 		String adjacenciasTxt = "";
-		
+		String distancesTxt = "";
 
 		for(String device : devices)
 			devicesTxt += device + ",";
@@ -142,8 +150,19 @@ public class Graph {
 			adjacenciasTxt+="],";
 		}
 		adjacenciasTxt+="";
+		
+		for(Enlace[] enlaceLine : tabelaDeRepasse) {
+			distancesTxt+="\n[";
+			for(Enlace enlace : enlaceLine) {
+				distancesTxt += ( enlace != null ? enlace.toString() : "-1") + ",";
+			}
+			distancesTxt+="],";
+		}
+		distancesTxt+="";
 
-		return "\nDevices:"+devicesTxt+"\nAdjacencia:"+adjacenciasTxt;
+		return "\nDevices:"+devicesTxt+
+				"\nAdjacencia:"+adjacenciasTxt+
+				"\nEnlaces:"+distancesTxt;
 	}
 	
 }
