@@ -1,4 +1,4 @@
-package br.ufc.crateus.aux;
+package br.ufc.crateus.graph;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -53,14 +53,15 @@ public class Graph {
 		
 		int iteration = 0;
 		for(int i = 0 ; i < devices.length; i++) {	
-			iterationAlgorithmDijkstra(i, iteration);
+			iteration = iterationAlgorithmDijkstra(i, iteration);
 		}
 		
 	}
 	
-	private void iterationAlgorithmDijkstra (int posDevCurr, int iteration) {
+	private int iterationAlgorithmDijkstra (int posDevCurr, int iteration) {
 		int posNeighborLowest =  getIndexLowerCostNeighbor(posDevCurr);
-		addAnalyzeNeighbor(posDevCurr, posNeighborLowest, iteration);
+		iteration = addAnalyzeNeighbor(posDevCurr, posNeighborLowest, iteration);
+		return iteration;
 	}
 
 	private int getIndexLowerCostNeighbor(int posDevCurr) {
@@ -79,7 +80,7 @@ public class Graph {
 		return posLowerCost;
 	}
 	
-	private void addAnalyzeNeighbor(int posDev, int posNeig, int iteration) {
+	private int addAnalyzeNeighbor(int posDev, int posNeig, int iteration) {
 		List<Integer> newNeighbors = new LinkedList<Integer>();
 		
 		for(int i = 0 ; i < tabelaDeRepasse[posNeig].length; i++) {
@@ -92,6 +93,7 @@ public class Graph {
 				tabelaDeRepasse[posDev][i] = new Enlace(posDev, posNeig, costSum);
 				tabelaDeRepasse[i][posDev] = new Enlace(posNeig, posDev, costSum);
 				newNeighbors.add(i);
+				//Para cada nó descoberto, eu salvo com o valor do vizinho 
 			}
 			else {
 				if(tabelaDeRepasse[posNeig][i].getCost()+tabelaDeRepasse[posDev][posNeig].getCost() < tabelaDeRepasse[posDev][i].getCost()) { 
@@ -106,8 +108,45 @@ public class Graph {
 		//errado
 		for(int newNeig : newNeighbors) {
 			//addAnalyzeNeighbor(posDev, posNeig, iteration);
-			addAnalyzeNeighbor(posDev, newNeig, iteration);
+			iteration = addAnalyzeNeighbor2(posDev, posNeig, newNeig, iteration);
+			//addAnalyzeNeighbor(posDev, newNeig, iteration);
 		}
+		return iteration;
+	}
+	
+	private int addAnalyzeNeighbor2(int posDev, int posNeig, int posNeig2, int iteration) {
+		System.out.println("Current: "+devices[posDev]);
+		System.out.println("Vizinho Original: "+devices[posNeig]);
+		System.out.println("Novo Vizinho: "+devices[posNeig2]);
+		
+		List<Integer> newNeighbors = new LinkedList<Integer>();
+		
+		for(int i = 0 ; i < tabelaDeRepasse[posNeig2].length; i++) {
+			
+			if(tabelaDeRepasse[posNeig2][i] == null) 
+				continue;
+			
+			if(tabelaDeRepasse[posDev][i] == null) {
+				int costSum = tabelaDeRepasse[posDev][posNeig2].getCost()+tabelaDeRepasse[posNeig2][i].getCost();
+				tabelaDeRepasse[posDev][i] = new Enlace(posDev, posNeig, costSum);
+				tabelaDeRepasse[i][posDev] = new Enlace(posNeig, posDev, costSum);
+				newNeighbors.add(i);
+			}
+			else {
+				if(tabelaDeRepasse[posNeig2][i].getCost()+tabelaDeRepasse[posDev][posNeig2].getCost() < tabelaDeRepasse[posDev][i].getCost()) { 
+					int costSum = tabelaDeRepasse[posDev][posNeig2].getCost()+tabelaDeRepasse[posNeig2][i].getCost();
+					tabelaDeRepasse[posDev][i] = new Enlace(posDev,posNeig,costSum);
+					tabelaDeRepasse[i][posDev] = new Enlace(posNeig, posDev, costSum);
+				}
+			}
+		}
+		iteration++;
+		showTabelaDeRepasse("Fase de Iteração " + iteration);
+		for(int newNeig : newNeighbors) {
+			iteration = addAnalyzeNeighbor2(posDev, posNeig, newNeig, iteration);
+			//addAnalyzeNeighbor(posDev, newNeig, iteration);
+		}
+		return iteration;
 	}
 		
 	private void showTabelaDeRepasse (String stage) {
@@ -137,7 +176,7 @@ public class Graph {
 	public String toString() {
 		String devicesTxt = "[";
 		String adjacenciasTxt = "";
-		String distancesTxt = "";
+		String tabelaTxt = "";
 
 		for(String device : devices)
 			devicesTxt += device + ",";
@@ -151,18 +190,18 @@ public class Graph {
 		}
 		adjacenciasTxt+="";
 		
-		for(Enlace[] enlaceLine : tabelaDeRepasse) {
-			distancesTxt+="\n[";
-			for(Enlace enlace : enlaceLine) {
-				distancesTxt += ( enlace != null ? enlace.toString() : "-1") + ",";
+		for(Enlace[] line : tabelaDeRepasse) {
+			tabelaTxt+="\n[";
+			for(Enlace enlace : line) {
+				tabelaTxt += ( enlace != null ? enlace.toString() : "-1") + ",";
 			}
-			distancesTxt+="],";
+			tabelaTxt+="],";
 		}
-		distancesTxt+="";
+		tabelaTxt+="";
 
 		return "\nDevices:"+devicesTxt+
 				"\nAdjacencia:"+adjacenciasTxt+
-				"\nEnlaces:"+distancesTxt;
+				"\nEnlaces:"+tabelaTxt;
 	}
 	
 }

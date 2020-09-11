@@ -1,45 +1,40 @@
-package br.ufc.crateus.aux;
+package br.ufc.crateus.graph;
 
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Aux {
-	private Scanner scan;
-	private List<String[]> routes = new LinkedList<String[]>();
-	private Graph graph;
+public class BuildGraph2 {
+	private static Scanner scan;
 	
-	public void readFile() {
+	public static Graph2 readFile() {
 		String fileName = "src/test.txt";
-		readFile(fileName);
+		return readFile(fileName);
 	}
 	
-	public void readFile(String fileName) {
+	public static Graph2 readFile(String fileName) {
+		Graph2 graph = null;
 		try {
 			if(fileName == "") 
 				fileName = "src/test.txt";
 			
-			scan = new Scanner(new File (fileName));
+			scan = new Scanner(new File(fileName));
 			graph = extractDevices();
-			extractLinks();
-			extractRoutes();
+			extractLinks(graph);
 			scan.close();
-			//System.out.println(graph.toString());
-			graph.algorithmDijkstra();
-			
 		} catch (Exception e) {
 			System.err.println("Erro ao ler o arquivo"+fileName);
 		}
-	}
-	
-	private Graph extractDevices() {
-		String[] devices = splitLineInValue();
-		Graph graph = new Graph(devices);
 		return graph;
 	}
 	
-	private void extractLinks() {
+	private static Graph2 extractDevices() {
+		String[] devices = splitLineInValue();
+		return new Graph2(devices);
+	}
+	
+	private static void extractLinks(Graph2 graph) {
 		try {
 			String[] values = splitLineInValue();
 			
@@ -57,10 +52,15 @@ public class Aux {
 		}
 	}
 	
-	private void extractRoutes() {
+	public static List<String[]> extractRoutes() {
+		List<String[]> routes = null;
+		if(scan == null)
+			return null;
+		
 		try {
 			String[] values = splitLineInValue();
-
+			routes =  new LinkedList<String[]>();
+			
 			for(int i=0; i < values.length; i+=2) {
 				String origin = values[i].substring(1); 
 				String destiny = values[i+1].substring(0, values[i+1].length()-1);  
@@ -73,9 +73,10 @@ public class Aux {
 		} catch (Exception e) {
 			System.err.println("Formato de arquivo incoerente com o padrão!");
 		}
+		return routes;
 	}
 		
-	private String[] splitLineInValue() {
+	private static String[] splitLineInValue() {
 		String line = scan.nextLine();
 		String[] values = null;
 		

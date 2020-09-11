@@ -1,12 +1,17 @@
 package br.ufc.crateus.principal;
 
-import br.ufc.crateus.aux.Aux;
+import java.util.List;
+
+import br.ufc.crateus.graph.BuildGraph;
+import br.ufc.crateus.graph.Graph;
 
 public class Main {
 
 	public static void main(String[] args) {
-		Aux aux = new Aux();
-		aux.readFile("test3.txt");
+		Graph graph = BuildGraph.readFile("test3.txt");
+		List<String[]> routes = BuildGraph.extractRoutes();
+		
+		graph.algorithmDijkstra();
 
 	}
 

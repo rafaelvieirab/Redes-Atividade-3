@@ -1,4 +1,4 @@
-package br.ufc.crateus.aux;
+package br.ufc.crateus.graph;
 
 public class Enlace {
 	private int posOrigin;
