@@ -4,19 +4,20 @@ public class DijkstraAlgorithm {
 	private Enlace[][] tabelaDeRepasse;
 	Graph graph;
 	int numberDevices;
+	int iteration;
 	
 	public DijkstraAlgorithm(Graph g) {
 		this.graph = g;
 		this.numberDevices = g.getLengthDevices();
 		this.tabelaDeRepasse= new Enlace[numberDevices][numberDevices];
+		this.iteration = 0;
 		dijkstra();
 	}
 	
 	public void dijkstra() {
 		initializes();
-		int iteration = 0;
 		for(int i = 0; i < numberDevices; i++) 
-			iteration = iteration(i, iteration);
+			iteration(i);
 	}
 
 	private void initializes() {
@@ -24,10 +25,10 @@ public class DijkstraAlgorithm {
 			for(int j = 0; j < numberDevices; j++) 
 				if(graph.getValueAdjacencia(i, j) != -1) 
 					tabelaDeRepasse[i][j] = new Enlace(i, j, graph.getValueAdjacencia(i, j));
-		showTabelaDeRepasse("Fase de Inicialização");
+		showTabelaDeRepasse("Inicialização");
 	}
 
-	private int iteration (int posCur, int iteration) {
+	private void iteration (int posCur) {
 	    boolean[] visitedVertex = new boolean[numberDevices];
 		
 	    for(int i = 0; i < numberDevices; i++) {
@@ -35,11 +36,10 @@ public class DijkstraAlgorithm {
 			if(posNeighborLowest == -1)
 				break;
 			visitedVertex[posNeighborLowest] = true;
-			iteration = addAnalyzeNeighbor(posCur, posNeighborLowest, visitedVertex, iteration);
+			addAnalyzeNeighbor(posCur, posNeighborLowest, visitedVertex);
 	    }
 	    iteration++;
-		showTabelaDeRepasse("Fase de Iteração " + iteration);
-		return iteration;
+		showTabelaDeRepasse("Iteração " + iteration);
 	}
 
 	private int getIndexLowerCostNeighbor(int posCur, boolean[] visitedVertex) {
@@ -58,7 +58,7 @@ public class DijkstraAlgorithm {
 		return posLowerCost;
 	}
 	
-	private int addAnalyzeNeighbor(int posCur, int posNeig, boolean[] visitedVertex, int iteration) {
+	private void addAnalyzeNeighbor(int posCur, int posNeig, boolean[] visitedVertex) {
 		
 		for(int v = 0 ; v < tabelaDeRepasse[posNeig].length; v++) {
 			if(visitedVertex[v] || posNeig==v || tabelaDeRepasse[posNeig][v] == null) 
@@ -68,7 +68,6 @@ public class DijkstraAlgorithm {
 			if(tabelaDeRepasse[posCur][v] == null || costSum < tabelaDeRepasse[posCur][v].getCost()) 
 				tabelaDeRepasse[posCur][v] = new Enlace(posCur, posNeig, costSum);
 		}
-		return iteration;
 	}
 	
 	private void showTabelaDeRepasse(String stage) {
@@ -111,10 +110,10 @@ public class DijkstraAlgorithm {
 			String route1 = returnRouteBetween(posOrig, posDest);
 			String route2 = returnRouteBetween(posDest, posOrig);
 			
-			if(route1.length() >= route2.length())
+			if(route1.length() >= route2.length()) 
 				System.out.println(route1);
-			else
-				System.out.println(route1);
+			else 
+				System.out.println(route2);
 			
 		} catch (Exception e) {
 			if(e.getMessage().length() == 0)

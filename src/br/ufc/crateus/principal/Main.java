@@ -11,7 +11,6 @@ public class Main {
 	public static void main(String[] args) {
 		Graph graph = BuildGraph.readFile("test3.txt");
 		DijkstraAlgorithm alg = new DijkstraAlgorithm(graph);
-		alg.dijkstra();
 		
 		List<String[]> routesArray = BuildGraph.getRoutes();
 		for(String[] routes : routesArray) 
