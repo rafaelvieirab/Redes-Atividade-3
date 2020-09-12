@@ -3,13 +3,11 @@ package br.ufc.crateus.graph;
 public class Graph {
 	private String[] devices;
 	private int[][] adjacencias;
-	private Enlace[][] tabelaDeRepasse;
 	
 	public Graph(String[] devices) {
 		int length = devices.length;
 		this.devices = devices;
 		this.adjacencias = new int[length][length];
-		this.tabelaDeRepasse = new Enlace[length][length];
 
 		for(int i = 0; i < length; i++) {
 			for(int j = 0; j < length; j++) 
