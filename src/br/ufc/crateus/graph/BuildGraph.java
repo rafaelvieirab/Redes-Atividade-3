@@ -9,7 +9,7 @@ public class BuildGraph {
 	private static Scanner scan;
 	
 	public static Graph readFile() {
-		String fileName = "src/test.txt";
+		String fileName = "test.txt";
 		return readFile(fileName);
 	}
 	
@@ -22,7 +22,6 @@ public class BuildGraph {
 			scan = new Scanner(new File(fileName));
 			graph = getDevices();
 			getLinks(graph);
-			scan.close();
 		} catch (Exception e) {
 			System.err.println("Erro ao ler o arquivo: '"+fileName+"'");
 		}
@@ -73,6 +72,7 @@ public class BuildGraph {
 		} catch (Exception e) {
 			System.err.println("Formato de arquivo incoerente com o padrão!");
 		}
+		scan.close();
 		return routes;
 	}
 

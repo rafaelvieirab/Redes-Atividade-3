@@ -36,110 +36,21 @@ public class Graph {
 		}
 	}
 
-	private int indexDevice(String device) {
+	public int indexDevice(String device) {
 		for(int i = 0; i < devices.length; i++)
 			if(device.equals(devices[i]))
 				return i;
 		return -1;
 	}
 	
-	public void algorithmDijkstra() {
-		initializesAlgorithmDijkstra();
-		
-		int iteration = 0;
-		for(int i = 0 ; i < devices.length; i++) {	
-			iteration = iterationAlgorithmDijkstra(i, iteration);
-		}
-		
-	}
-	
-	private void initializesAlgorithmDijkstra() {
-		for(int i = 0; i < devices.length; i++) 
-			for(int j = 0; j < devices.length; j++) 
-				if(adjacencias[i][j] != -1) 
-					tabelaDeRepasse[i][j] = new Enlace(i,j,adjacencias[i][j]);
-		showTabelaDeRepasse("Fase de Inicialização");
-	}
-	
-	private int iterationAlgorithmDijkstra (int posDevCurr, int iteration) {
-		
-	    boolean[] visitedVertex = new boolean[devices.length];
-		
-	    for(int i = 0; i < devices.length; i++) {
-			int posNeighborLowest =  getIndexLowerCostNeighbor(posDevCurr, visitedVertex);
-			if(posNeighborLowest == -1)
-				break;
-			visitedVertex[posNeighborLowest] = true;
-			iteration = addAnalyzeNeighbor(posDevCurr, posNeighborLowest, visitedVertex, iteration);
-
-			iteration++;
-			showTabelaDeRepasse("Fase de Iteração " + iteration);
-	    }
-		return iteration;
-	}
-
-	private int getIndexLowerCostNeighbor(int posDevCurr, boolean[] visitedVertex) {
-		int lowerCost = -1;
-		int posLowerCost = -1;
-		
-		for(int i = 0; i < tabelaDeRepasse[posDevCurr].length; i++) {
-			if(visitedVertex[i] || tabelaDeRepasse[posDevCurr][i] == null || posDevCurr == i)
-				continue;
-			int tmpCost = tabelaDeRepasse[posDevCurr][i].getCost();
-			if(tmpCost < lowerCost || lowerCost==-1) {
-				lowerCost = tmpCost;
-				posLowerCost = i;
-			}
-		}
-		return posLowerCost;
-	}
-	
-	private int addAnalyzeNeighbor(int posDev, int posNeig, boolean[] visitedVertex, int iteration) {
-		
-		for(int v = 0 ; v < tabelaDeRepasse[posNeig].length; v++) {
-			
-			if(visitedVertex[v] || posNeig==v || tabelaDeRepasse[posNeig][v] == null) 
-				continue;
-			
-			int costSum = tabelaDeRepasse[posDev][posNeig].getCost()+tabelaDeRepasse[posNeig][v].getCost();
-			if(tabelaDeRepasse[posDev][v] == null || costSum < tabelaDeRepasse[posDev][v].getCost()) {
-				tabelaDeRepasse[posDev][v] = new Enlace(posDev, posNeig, costSum);
-			}
-		}
-		return iteration;
-	}
-	
-	private void showTabelaDeRepasse (String stage) {
-		System.out.println("\n"+stage);
-		String str = " ";
-		
-		for(int i = 0 ; i < devices.length; i++) 
-			str += devices[i] + ":\t   | ";
-		System.out.println(str);
-
-		
-		str = "";
-		for(int i = 0 ; i < devices.length; i++) {
-			for(int j = 0 ; j < devices.length; j++) {
-				str += devices[i]+",(";
-				if(tabelaDeRepasse[i][j] != null) 
-					str += devices[tabelaDeRepasse[i][j].getPosOrigin()]+","+devices[tabelaDeRepasse[i][j].getPosDestiny()]+"),"+ tabelaDeRepasse[i][j].getCost()+"  | ";
-				else
-					str += "-,-),-1 | ";
-			}
-			str +="\n";
-		}
-		System.out.println(str);
-	}
-
-	public int getLengthDevices() {
-		return devices.length;
-	}
-	
 	public String getDevice(int pos) {
 		if(pos < devices.length)
 			return devices[pos];
 		return "";
+	}
+	
+	public int getLengthDevices() {
+		return devices.length;
 	}
 
 	public String[] getDevices() {
@@ -160,7 +71,6 @@ public class Graph {
 	public String toString() {
 		String devicesTxt = "[";
 		String adjacenciasTxt = "";
-		String tabelaTxt = "";
 
 		for(String device : devices)
 			devicesTxt += device + ",";
@@ -173,19 +83,8 @@ public class Graph {
 			adjacenciasTxt+="],";
 		}
 		adjacenciasTxt+="";
-		
-		for(Enlace[] line : tabelaDeRepasse) {
-			tabelaTxt+="\n[";
-			for(Enlace enlace : line) {
-				tabelaTxt += ( enlace != null ? enlace.toString() : "-1") + ",";
-			}
-			tabelaTxt+="],";
-		}
-		tabelaTxt+="";
 
-		return "\nDevices:"+devicesTxt+
-				"\nAdjacencia:"+adjacenciasTxt+
-				"\nEnlaces:"+tabelaTxt;
+		return "\nDevices:" + devicesTxt + "\nAdjacencia:" + adjacenciasTxt;
 	}
 	
 }

@@ -15,10 +15,8 @@ public class DijkstraAlgorithm {
 	public void dijkstra() {
 		initializes();
 		int iteration = 0;
-		for(int i = 0; i < numberDevices; i++) {
+		for(int i = 0; i < numberDevices; i++) 
 			iteration = iteration(i, iteration);
-		}
-		this.graph = null;
 	}
 
 	private void initializes() {
@@ -52,7 +50,7 @@ public class DijkstraAlgorithm {
 			if(visitedVertex[i] || tabelaDeRepasse[posCur][i] == null || posCur == i)
 				continue;
 			int tmpCost = tabelaDeRepasse[posCur][i].getCost();
-			if(tmpCost < lowerCost || lowerCost==-1) {
+			if(tmpCost < lowerCost || lowerCost == -1) {
 				lowerCost = tmpCost;
 				posLowerCost = i;
 			}
@@ -98,6 +96,34 @@ public class DijkstraAlgorithm {
 			str +="\n";
 		}
 		System.out.println(str);
+	}
+	
+	public void shortestRoute(String origin, String destiny) {
+		System.out.print("\nRota (" + origin + "," + destiny + "):");
+		
+		try {
+			int posOrig = graph.indexDevice(origin);
+			int posDest = graph.indexDevice(destiny);
+			
+			if(posOrig == -1 || posDest==-1)
+				throw new Exception("O device não está cadastrado na Rede/Grafo");
+			
+			int orig = posOrig;
+			int dest = tabelaDeRepasse[orig][posDest].getPosDestiny();
+			System.out.print("(" + graph.getDevice(orig) + "," + graph.getDevice(dest) + "),");
+			
+			do {
+				orig = dest;
+				dest = tabelaDeRepasse[orig][posDest].getPosDestiny();
+				System.out.print("(" + graph.getDevice(orig) + "," + graph.getDevice(dest) + "),");
+			} while(dest != posDest);
+			
+		} catch (Exception e) {
+			if(e.getMessage().length() == 0)
+				System.err.println("O Arquivo não está no formato pré-estabelecido");
+			else 
+				System.err.println(e.getMessage());
+		}
 	}
 
 }
