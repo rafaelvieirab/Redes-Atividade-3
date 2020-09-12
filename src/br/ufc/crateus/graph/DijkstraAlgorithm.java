@@ -62,7 +62,7 @@ public class DijkstraAlgorithm {
 		
 		for(int v = 0 ; v < tabelaDeRepasse[posNeig].length; v++) {
 			if(visitedVertex[v] || posNeig==v || tabelaDeRepasse[posNeig][v] == null) 
-				continue;
+				continue; 
 			
 			int costSum = tabelaDeRepasse[posCur][posNeig].getCost()+tabelaDeRepasse[posNeig][v].getCost();
 			if(tabelaDeRepasse[posCur][v] == null || costSum < tabelaDeRepasse[posCur][v].getCost()) 
