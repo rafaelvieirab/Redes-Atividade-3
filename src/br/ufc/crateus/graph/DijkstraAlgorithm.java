@@ -108,15 +108,13 @@ public class DijkstraAlgorithm {
 			if(posOrig == -1 || posDest==-1)
 				throw new Exception("O device não está cadastrado na Rede/Grafo");
 			
-			int orig = posOrig;
-			int dest = tabelaDeRepasse[orig][posDest].getPosDestiny();
-			System.out.print("(" + graph.getDevice(orig) + "," + graph.getDevice(dest) + "),");
+			String route1 = returnRouteBetween(posOrig, posDest);
+			String route2 = returnRouteBetween(posDest, posOrig);
 			
-			do {
-				orig = dest;
-				dest = tabelaDeRepasse[orig][posDest].getPosDestiny();
-				System.out.print("(" + graph.getDevice(orig) + "," + graph.getDevice(dest) + "),");
-			} while(dest != posDest);
+			if(route1.length() >= route2.length())
+				System.out.println(route1);
+			else
+				System.out.println(route1);
 			
 		} catch (Exception e) {
 			if(e.getMessage().length() == 0)
@@ -126,4 +124,17 @@ public class DijkstraAlgorithm {
 		}
 	}
 
+	private String returnRouteBetween(int posOrig, int posDest) {
+		int orig = posOrig;
+		int dest = tabelaDeRepasse[orig][posDest].getPosDestiny();
+		String str = "(" + graph.getDevice(orig) + "," + graph.getDevice(dest) + "),";
+		
+		do {
+			orig = dest;
+			dest = tabelaDeRepasse[orig][posDest].getPosDestiny();
+			str +="(" + graph.getDevice(orig) + "," + graph.getDevice(dest) + "),";
+		} while(dest != posDest);
+		return str;
+	}
+	
 }
